@@ -1,4 +1,4 @@
-package main
+package requests
 import (
 	"bytes"
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 )
 
-func newfileUploadRequest(uri string, params map[string]string, paramName, path string) (*http.Request, error) {
+func newfileUploadRequest(uri string, params map[string]string) (*http.Request, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -19,7 +19,7 @@ func newfileUploadRequest(uri string, params map[string]string, paramName, path 
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile(paramName, filepath.Base(path))
+	part, err := writer.CreateFormFile("answer", filepath.Base(path))
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func newfileUploadRequest(uri string, params map[string]string, paramName, path 
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", uri, body)
+	req, err := http.NewRequest("POST", "https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=d6186c8cf73335b77666fe45e3171ec2dc56e21d", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	return req, err
 }
@@ -45,7 +45,7 @@ func main() {
 	extraParams := map[string]string{
 		"file":       "answer",
 	}
-	request, err := newfileUploadRequest("https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=d6186c8cf73335b77666fe45e3171ec2dc56e21d", extraParams, "file", path)
+	request, err := newfileUploadRequest("https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=d6186c8cf73335b77666fe45e3171ec2dc56e21d", extraParams, path)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,15 +53,8 @@ func main() {
 	resp, err := client.Do(request)
 	if err != nil {
 		log.Fatal(err)
-	} else {
-		body := &bytes.Buffer{}
-		_, err := body.ReadFrom(resp.Body)
-    if err != nil {
-			log.Fatal(err)
-		}
+	}
+
     resp.Body.Close()
 		fmt.Println(resp.StatusCode)
-		fmt.Println(resp.Header)
-		fmt.Println(body)
 	}
-}
