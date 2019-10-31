@@ -15,6 +15,6 @@ func main() {
 	algoritmo := algoritmos.NewAlgoritmo()
 
 	json = get.Json()
-	teste := algoritmo.descriptografaJulioCesar()
-	fmt.Println(json, teste)
+	teste := algoritmo.DescriptografaJulioCesar(json)
+	fmt.Println(teste)
 }
